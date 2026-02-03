@@ -17,13 +17,14 @@ import { cn } from '@/lib/utils'
 
 const stageLabels: Record<string, string> = {
   group: 'Gruppspel',
+  round_of_32: '32-delsfinal',
   round_of_16: 'Sextondelsfinal',
   quarter: 'Kvartsfinal',
   semi: 'Semifinal',
   final: 'Final',
 }
 
-const stages = ['all', 'group', 'round_of_16', 'quarter', 'semi', 'final'] as const
+const stages = ['all', 'group', 'round_of_32', 'round_of_16', 'quarter', 'semi', 'final'] as const
 
 export default function MatchesPage() {
   const { formatMatchTime, selectedTeam, hideOtherTeams, isTeamHighlighted } = useApp()

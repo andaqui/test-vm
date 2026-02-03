@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <section className="text-center py-8">
-        <h1 className="text-4xl font-bold mb-4">Fotbolls-VM</h1>
+        <h1 className="text-4xl font-bold mb-4">Fotbolls-VM 2026</h1>
         <p className="text-muted-foreground text-lg">
           Följ alla matcher, grupper och tabeller
         </p>
@@ -47,7 +47,7 @@ export default function Home() {
                 className="p-4 border rounded-lg hover:bg-accent transition-colors"
               >
                 <h3 className="font-semibold">Grupper & Tabeller</h3>
-                <p className="text-sm text-muted-foreground">Se alla grupper A-H</p>
+                <p className="text-sm text-muted-foreground">Se alla grupper A-L</p>
               </Link>
               <Link
                 href="/matches"
@@ -61,7 +61,7 @@ export default function Home() {
                 className="p-4 border rounded-lg hover:bg-accent transition-colors"
               >
                 <h3 className="font-semibold">Slutspel</h3>
-                <p className="text-sm text-muted-foreground">Från 16-delsfinal till final</p>
+                <p className="text-sm text-muted-foreground">Från 32-delsfinal till final</p>
               </Link>
               <Link
                 href="/predictions"

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { Header } from "@/components/Header";
+import { SettingsBar } from "@/components/SettingsBar";
 
 export const metadata: Metadata = {
-  title: "Fotbolls-VM",
-  description: "Följ alla matcher, grupper och tabeller i Fotbolls-VM",
+  title: "Fotbolls-VM 2026",
+  description: "Följ alla matcher, grupper och tabeller i Fotbolls-VM 2026",
 };
 
 export default function RootLayout({
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen font-sans">
         <AppProvider>
           <Header />
+          <SettingsBar />
           <main className="container mx-auto px-4 py-6">
             {children}
           </main>

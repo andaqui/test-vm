@@ -1,33 +1,62 @@
 "use client"
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical, RotateCcw } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
-import { teams, getTeamById } from '@/data/teams'
+import { teams, getTeamById, groupNames, getDefaultGroupOrder } from '@/data/teams'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const groupNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-
-// Playoff bracket structure based on FIFA World Cup format
+// Playoff bracket structure for 48-team World Cup
+// Top 2 from each group (24) + 8 best third-placed teams = 32 teams
+// Round of 32 -> Round of 16 -> Quarter -> Semi -> Final
 const playoffStructure = {
+  round_of_32: [
+    { id: 'r32-1', home: '1A', away: '3C' },
+    { id: 'r32-2', home: '2B', away: '2C' },
+    { id: 'r32-3', home: '1B', away: '3A' },
+    { id: 'r32-4', home: '2A', away: '2D' },
+    { id: 'r32-5', home: '1C', away: '3B' },
+    { id: 'r32-6', home: '2E', away: '2F' },
+    { id: 'r32-7', home: '1D', away: '3E' },
+    { id: 'r32-8', home: '2G', away: '2H' },
+    { id: 'r32-9', home: '1E', away: '3D' },
+    { id: 'r32-10', home: '2I', away: '2J' },
+    { id: 'r32-11', home: '1F', away: '3G' },
+    { id: 'r32-12', home: '2K', away: '2L' },
+    { id: 'r32-13', home: '1G', away: '3F' },
+    { id: 'r32-14', home: '1H', away: '3I' },
+    { id: 'r32-15', home: '1I', away: '3H' },
+    { id: 'r32-16', home: '1J', away: '3J' },
+  ],
   round_of_16: [
-    { id: 'r16-1', home: '1A', away: '2B' },
-    { id: 'r16-2', home: '1C', away: '2D' },
-    { id: 'r16-3', home: '1E', away: '2F' },
-    { id: 'r16-4', home: '1G', away: '2H' },
-    { id: 'r16-5', home: '1B', away: '2A' },
-    { id: 'r16-6', home: '1D', away: '2C' },
-    { id: 'r16-7', home: '1F', away: '2E' },
-    { id: 'r16-8', home: '1H', away: '2G' },
+    { id: 'r16-1', home: 'r32-1', away: 'r32-2' },
+    { id: 'r16-2', home: 'r32-3', away: 'r32-4' },
+    { id: 'r16-3', home: 'r32-5', away: 'r32-6' },
+    { id: 'r16-4', home: 'r32-7', away: 'r32-8' },
+    { id: 'r16-5', home: 'r32-9', away: 'r32-10' },
+    { id: 'r16-6', home: 'r32-11', away: 'r32-12' },
+    { id: 'r16-7', home: 'r32-13', away: 'r32-14' },
+    { id: 'r16-8', home: 'r32-15', away: 'r32-16' },
   ],
   quarter: [
     { id: 'qf-1', home: 'r16-1', away: 'r16-2' },
@@ -46,11 +75,20 @@ export default function PredictionsPage() {
   const { predictions, updateGroupPrediction, updatePlayoffPrediction, setPredictions } = useApp()
   const [activeTab, setActiveTab] = useState('groups')
 
+  // Initialize group predictions with default order if empty
+  useEffect(() => {
+    groupNames.forEach(groupName => {
+      if (!predictions.groupPredictions[groupName] || predictions.groupPredictions[groupName].length === 0) {
+        updateGroupPrediction(groupName, getDefaultGroupOrder(groupName))
+      }
+    })
+  }, [])
+
   // Get team from group prediction (e.g., "1A" -> team at position 1 in group A)
   const getTeamFromGroupPosition = useCallback(
     (position: string): string | null => {
       const pos = parseInt(position[0]) - 1 // 0-indexed
-      const group = position[1]
+      const group = position.slice(1)
       const groupPrediction = predictions.groupPredictions[group]
       if (!groupPrediction || !groupPrediction[pos]) return null
       return groupPrediction[pos]
@@ -69,7 +107,7 @@ export default function PredictionsPage() {
   // Resolve a match slot (either group position or previous match winner)
   const resolveMatchSlot = useCallback(
     (slot: string): string | null => {
-      if (slot.match(/^\d[A-H]$/)) {
+      if (slot.match(/^\d[A-L]$/)) {
         return getTeamFromGroupPosition(slot)
       }
       return getTeamFromPlayoff(slot)
@@ -101,7 +139,7 @@ export default function PredictionsPage() {
     return bracket
   }, [predictions.playoffPredictions, resolveMatchSlot])
 
-  // Check if all groups are complete
+  // Check if all groups are complete (all have 4 teams)
   const allGroupsComplete = groupNames.every(
     g => predictions.groupPredictions[g]?.length === 4
   )
@@ -111,14 +149,30 @@ export default function PredictionsPage() {
     ? getTeamById(predictions.playoffPredictions['final'])
     : null
 
-  // Reset all predictions
-  const handleReset = () => {
+  // Reset all predictions to default
+  const handleResetAll = () => {
     if (confirm('Är du säker på att du vill återställa alla predictions?')) {
+      const defaultGroupPredictions: Record<string, string[]> = {}
+      groupNames.forEach(g => {
+        defaultGroupPredictions[g] = getDefaultGroupOrder(g)
+      })
       setPredictions({
-        groupPredictions: {},
+        groupPredictions: defaultGroupPredictions,
         playoffPredictions: {},
       })
     }
+  }
+
+  // Reset to default standings (keep current but reset to default order)
+  const handleResetToStandings = () => {
+    const defaultGroupPredictions: Record<string, string[]> = {}
+    groupNames.forEach(g => {
+      defaultGroupPredictions[g] = getDefaultGroupOrder(g)
+    })
+    setPredictions({
+      groupPredictions: defaultGroupPredictions,
+      playoffPredictions: predictions.playoffPredictions,
+    })
   }
 
   return (
@@ -127,12 +181,18 @@ export default function PredictionsPage() {
         <div>
           <h1 className="text-3xl font-bold">Predictions</h1>
           <p className="text-muted-foreground mt-2">
-            Gör dina egna tippningar - sparas automatiskt
+            Dra och släpp lagen för att ordna din tippning - sparas automatiskt
           </p>
         </div>
-        <Button variant="outline" onClick={handleReset}>
-          Återställ alla
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleResetToStandings}>
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Återställ ordning
+          </Button>
+          <Button variant="outline" onClick={handleResetAll}>
+            Återställ alla
+          </Button>
+        </div>
       </div>
 
       {/* Winner Display */}
@@ -160,15 +220,15 @@ export default function PredictionsPage() {
 
         <TabsContent value="groups" className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Välj placering (1-4) för varje lag i respektive grupp
+            Dra och släpp lagen för att ändra placering (1-4) i varje grupp
           </p>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {groupNames.map(groupName => (
               <GroupPrediction
                 key={groupName}
                 groupName={groupName}
-                currentPrediction={predictions.groupPredictions[groupName] || []}
+                currentPrediction={predictions.groupPredictions[groupName] || getDefaultGroupOrder(groupName)}
                 onUpdate={updateGroupPrediction}
               />
             ))}
@@ -194,6 +254,7 @@ export default function PredictionsPage() {
           {/* Mobile: Stacked view */}
           <div className="lg:hidden space-y-6">
             {[
+              { name: '32-delsfinal', key: 'round_of_32' },
               { name: 'Sextondelsfinal', key: 'round_of_16' },
               { name: 'Kvartsfinal', key: 'quarter' },
               { name: 'Semifinal', key: 'semi' },
@@ -218,23 +279,25 @@ export default function PredictionsPage() {
 
           {/* Desktop: Bracket view */}
           <div className="hidden lg:block overflow-x-auto">
-            <div className="min-w-[1000px] flex gap-6 p-4">
+            <div className="min-w-[1400px] flex gap-4 p-4">
               {[
+                { name: '32-delsfinal', key: 'round_of_32' },
                 { name: 'Sextondelsfinal', key: 'round_of_16' },
                 { name: 'Kvartsfinal', key: 'quarter' },
                 { name: 'Semifinal', key: 'semi' },
                 { name: 'Final', key: 'final' },
               ].map((stage, stageIndex) => (
-                <div key={stage.key} className="flex-1">
-                  <h3 className="text-lg font-semibold text-center mb-4 pb-2 border-b">
+                <div key={stage.key} className="flex-1 min-w-[200px]">
+                  <h3 className="text-sm font-semibold text-center mb-4 pb-2 border-b">
                     {stage.name}
                   </h3>
                   <div
                     className={cn(
-                      'space-y-2',
-                      stageIndex === 1 && 'space-y-8 pt-6',
-                      stageIndex === 2 && 'space-y-24 pt-16',
-                      stageIndex === 3 && 'pt-36'
+                      'space-y-1',
+                      stageIndex === 1 && 'space-y-4 pt-4',
+                      stageIndex === 2 && 'space-y-12 pt-10',
+                      stageIndex === 3 && 'space-y-32 pt-24',
+                      stageIndex === 4 && 'pt-48'
                     )}
                   >
                     {playoffBracket[stage.key]?.map(match => (
@@ -255,6 +318,65 @@ export default function PredictionsPage() {
   )
 }
 
+function SortableTeamItem({
+  id,
+  position,
+}: {
+  id: string
+  position: number
+}) {
+  const team = getTeamById(id)
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  if (!team) return null
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'flex items-center gap-2 p-2 rounded-lg border bg-card transition-colors',
+        isDragging && 'opacity-50 shadow-lg',
+        position < 2
+          ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30'
+          : 'border-border'
+      )}
+    >
+      <button
+        className="cursor-grab active:cursor-grabbing touch-none"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </button>
+      <span
+        className={cn(
+          'w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold shrink-0',
+          position < 2
+            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+            : 'bg-muted text-muted-foreground'
+        )}
+      >
+        {position + 1}
+      </span>
+      <span className="text-lg">{team.flag}</span>
+      <span className="font-medium truncate">{team.name}</span>
+    </div>
+  )
+}
+
 function GroupPrediction({
   groupName,
   currentPrediction,
@@ -264,32 +386,26 @@ function GroupPrediction({
   currentPrediction: string[]
   onUpdate: (group: string, teamIds: string[]) => void
 }) {
-  const groupTeams = teams.filter(t => t.group === groupName)
-
-  const handlePositionChange = (position: number, teamId: string) => {
-    const newPrediction = [...currentPrediction]
-
-    // Remove team from old position if exists
-    const oldPosition = newPrediction.indexOf(teamId)
-    if (oldPosition !== -1) {
-      newPrediction[oldPosition] = ''
-    }
-
-    // Set team at new position
-    newPrediction[position] = teamId
-
-    // Filter out empty strings but keep array structure
-    onUpdate(groupName, newPrediction)
-  }
-
-  const getSelectedTeam = (position: number) => currentPrediction[position] || ''
-
-  const getAvailableTeams = (position: number) => {
-    const selectedAtPosition = getSelectedTeam(position)
-    return groupTeams.filter(t => {
-      if (t.id === selectedAtPosition) return true
-      return !currentPrediction.includes(t.id)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
     })
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      const oldIndex = currentPrediction.indexOf(active.id as string)
+      const newIndex = currentPrediction.indexOf(over.id as string)
+      const newOrder = arrayMove(currentPrediction, oldIndex, newIndex)
+      onUpdate(groupName, newOrder)
+    }
   }
 
   return (
@@ -297,50 +413,30 @@ function GroupPrediction({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg">Grupp {groupName}</CardTitle>
         <CardDescription>
-          {currentPrediction.filter(Boolean).length}/4 ifylld
+          Dra för att ändra ordning
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {[0, 1, 2, 3].map(position => {
-          const availableTeams = getAvailableTeams(position)
-          const selectedTeam = getSelectedTeam(position)
-
-          return (
-            <div key={position} className="flex items-center gap-2">
-              <span
-                className={cn(
-                  'w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold',
-                  position < 2
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-                    : 'bg-muted text-muted-foreground'
-                )}
-              >
-                {position + 1}
-              </span>
-              <Select
-                value={selectedTeam}
-                onValueChange={(value) => handlePositionChange(position, value)}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Välj lag">
-                    {selectedTeam && getTeamById(selectedTeam) && (
-                      <span>
-                        {getTeamById(selectedTeam)?.flag} {getTeamById(selectedTeam)?.name}
-                      </span>
-                    )}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTeams.map(team => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.flag} {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <CardContent>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={currentPrediction}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-2">
+              {currentPrediction.map((teamId, index) => (
+                <SortableTeamItem
+                  key={teamId}
+                  id={teamId}
+                  position={index}
+                />
+              ))}
             </div>
-          )
-        })}
+          </SortableContext>
+        </DndContext>
       </CardContent>
     </Card>
   )
@@ -431,38 +527,38 @@ function PlayoffMatchBracket({
 
   if (!homeTeam || !awayTeam) {
     return (
-      <div className="border rounded-lg p-2 bg-muted/50 opacity-50">
-        <div className="p-1 text-xs text-center text-muted-foreground">TBD</div>
-        <div className="p-1 text-xs text-center text-muted-foreground border-t">TBD</div>
+      <div className="border rounded-lg p-1 bg-muted/50 opacity-50 text-xs">
+        <div className="p-1 text-center text-muted-foreground">TBD</div>
+        <div className="p-1 text-center text-muted-foreground border-t">TBD</div>
       </div>
     )
   }
 
   return (
-    <div className="border rounded-lg bg-card">
+    <div className="border rounded-lg bg-card text-sm">
       <button
         onClick={() => onSelectWinner(match.id, homeTeam.id)}
         className={cn(
-          'w-full flex items-center gap-1 p-2 text-sm transition-colors rounded-t-lg',
+          'w-full flex items-center gap-1 p-1.5 transition-colors rounded-t-lg',
           match.winnerId === homeTeam.id
             ? 'bg-green-100 dark:bg-green-900/50'
             : 'hover:bg-accent'
         )}
       >
         <span>{homeTeam.flag}</span>
-        <span className="truncate font-medium">{homeTeam.name}</span>
+        <span className="truncate text-xs font-medium">{homeTeam.name}</span>
       </button>
       <button
         onClick={() => onSelectWinner(match.id, awayTeam.id)}
         className={cn(
-          'w-full flex items-center gap-1 p-2 text-sm transition-colors border-t rounded-b-lg',
+          'w-full flex items-center gap-1 p-1.5 transition-colors border-t rounded-b-lg',
           match.winnerId === awayTeam.id
             ? 'bg-green-100 dark:bg-green-900/50'
             : 'hover:bg-accent'
         )}
       >
         <span>{awayTeam.flag}</span>
-        <span className="truncate font-medium">{awayTeam.name}</span>
+        <span className="truncate text-xs font-medium">{awayTeam.name}</span>
       </button>
     </div>
   )
