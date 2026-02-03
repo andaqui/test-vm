@@ -26,7 +26,7 @@ export default function GroupsPage() {
       <div>
         <h1 className="text-3xl font-bold">Grupper & Tabeller</h1>
         <p className="text-muted-foreground mt-2">
-          Alla VM-grupper (A-H) med aktuella tabeller
+          Alla VM-grupper (A-L) med aktuella tabeller
         </p>
       </div>
 

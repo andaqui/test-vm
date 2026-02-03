@@ -1,5 +1,5 @@
 import { Match, Group, GroupStanding } from './types'
-import { teams, getTeamById } from './teams'
+import { teams, getTeamById, groupNames, getTeamsByGroup } from './teams'
 
 // Helper to create a match
 function createMatch(
@@ -26,93 +26,104 @@ function createMatch(
   }
 }
 
+// World Cup 2026 matches - placeholder dates (tournament June-July 2026)
+// Group stage matches for all 12 groups
 export const matches: Match[] = [
   // Group A
-  createMatch('m1', 'qat', 'ecu', '2022-11-20T16:00:00Z', 'group', 'Al Bayt Stadium', 'SVT', { home: 0, away: 2 }),
-  createMatch('m2', 'sen', 'ned', '2022-11-21T16:00:00Z', 'group', 'Al Thumama Stadium', 'TV4', { home: 0, away: 2 }),
-  createMatch('m3', 'qat', 'sen', '2022-11-25T13:00:00Z', 'group', 'Al Thumama Stadium', 'SVT', { home: 1, away: 3 }),
-  createMatch('m4', 'ned', 'ecu', '2022-11-25T16:00:00Z', 'group', 'Khalifa International', 'TV4', { home: 1, away: 1 }),
-  createMatch('m5', 'ned', 'qat', '2022-11-29T15:00:00Z', 'group', 'Al Bayt Stadium', 'SVT', { home: 2, away: 0 }),
-  createMatch('m6', 'ecu', 'sen', '2022-11-29T15:00:00Z', 'group', 'Khalifa International', 'TV4', { home: 1, away: 2 }),
+  createMatch('m1', 'usa', 'ecu', '2026-06-11T18:00:00Z', 'group', 'MetLife Stadium', 'SVT'),
+  createMatch('m2', 'ned', 'sen', '2026-06-11T21:00:00Z', 'group', 'MetLife Stadium', 'TV4'),
+  createMatch('m3', 'usa', 'ned', '2026-06-16T18:00:00Z', 'group', 'AT&T Stadium', 'SVT'),
+  createMatch('m4', 'sen', 'ecu', '2026-06-16T21:00:00Z', 'group', 'Mercedes-Benz Stadium', 'TV4'),
+  createMatch('m5', 'ecu', 'ned', '2026-06-21T18:00:00Z', 'group', 'MetLife Stadium', 'SVT'),
+  createMatch('m6', 'sen', 'usa', '2026-06-21T18:00:00Z', 'group', 'AT&T Stadium', 'TV4'),
 
   // Group B
-  createMatch('m7', 'eng', 'irn', '2022-11-21T13:00:00Z', 'group', 'Khalifa International', 'SVT', { home: 6, away: 2 }),
-  createMatch('m8', 'usa', 'wal', '2022-11-21T19:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'TV4', { home: 1, away: 1 }),
-  createMatch('m9', 'wal', 'irn', '2022-11-25T10:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'SVT', { home: 0, away: 2 }),
-  createMatch('m10', 'eng', 'usa', '2022-11-25T19:00:00Z', 'group', 'Al Bayt Stadium', 'TV4', { home: 0, away: 0 }),
-  createMatch('m11', 'wal', 'eng', '2022-11-29T19:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'SVT', { home: 0, away: 3 }),
-  createMatch('m12', 'irn', 'usa', '2022-11-29T19:00:00Z', 'group', 'Al Thumama Stadium', 'TV4', { home: 0, away: 1 }),
+  createMatch('m7', 'eng', 'wal', '2026-06-12T15:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m8', 'den', 'irn', '2026-06-12T18:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
+  createMatch('m9', 'eng', 'den', '2026-06-17T15:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m10', 'irn', 'wal', '2026-06-17T18:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
+  createMatch('m11', 'wal', 'den', '2026-06-22T15:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m12', 'irn', 'eng', '2026-06-22T15:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
 
   // Group C
-  createMatch('m13', 'arg', 'ksa', '2022-11-22T10:00:00Z', 'group', 'Lusail Stadium', 'SVT', { home: 1, away: 2 }),
-  createMatch('m14', 'mex', 'pol', '2022-11-22T16:00:00Z', 'group', 'Stadium 974', 'TV4', { home: 0, away: 0 }),
-  createMatch('m15', 'pol', 'ksa', '2022-11-26T13:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 2, away: 0 }),
-  createMatch('m16', 'arg', 'mex', '2022-11-26T19:00:00Z', 'group', 'Lusail Stadium', 'TV4', { home: 2, away: 0 }),
-  createMatch('m17', 'pol', 'arg', '2022-11-30T19:00:00Z', 'group', 'Stadium 974', 'SVT', { home: 0, away: 2 }),
-  createMatch('m18', 'ksa', 'mex', '2022-11-30T19:00:00Z', 'group', 'Lusail Stadium', 'TV4', { home: 1, away: 2 }),
+  createMatch('m13', 'arg', 'ksa', '2026-06-12T21:00:00Z', 'group', 'Estadio Azteca', 'SVT'),
+  createMatch('m14', 'mex', 'pol', '2026-06-13T00:00:00Z', 'group', 'Estadio Azteca', 'TV4'),
+  createMatch('m15', 'arg', 'mex', '2026-06-17T21:00:00Z', 'group', 'Estadio Azteca', 'SVT'),
+  createMatch('m16', 'pol', 'ksa', '2026-06-18T00:00:00Z', 'group', 'Estadio BBVA', 'TV4'),
+  createMatch('m17', 'ksa', 'mex', '2026-06-22T21:00:00Z', 'group', 'Estadio Azteca', 'SVT'),
+  createMatch('m18', 'pol', 'arg', '2026-06-22T21:00:00Z', 'group', 'Estadio BBVA', 'TV4'),
 
   // Group D
-  createMatch('m19', 'den', 'tun', '2022-11-22T13:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 0, away: 0 }),
-  createMatch('m20', 'fra', 'aus', '2022-11-22T19:00:00Z', 'group', 'Al Janoub Stadium', 'TV4', { home: 4, away: 1 }),
-  createMatch('m21', 'tun', 'aus', '2022-11-26T10:00:00Z', 'group', 'Al Janoub Stadium', 'SVT', { home: 0, away: 1 }),
-  createMatch('m22', 'fra', 'den', '2022-11-26T16:00:00Z', 'group', 'Stadium 974', 'TV4', { home: 2, away: 1 }),
-  createMatch('m23', 'tun', 'fra', '2022-11-30T15:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 1, away: 0 }),
-  createMatch('m24', 'aus', 'den', '2022-11-30T15:00:00Z', 'group', 'Al Janoub Stadium', 'TV4', { home: 1, away: 0 }),
+  createMatch('m19', 'fra', 'per', '2026-06-13T15:00:00Z', 'group', 'Hard Rock Stadium', 'SVT'),
+  createMatch('m20', 'aus', 'tun', '2026-06-13T18:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
+  createMatch('m21', 'fra', 'aus', '2026-06-18T15:00:00Z', 'group', 'Hard Rock Stadium', 'SVT'),
+  createMatch('m22', 'tun', 'per', '2026-06-18T18:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
+  createMatch('m23', 'per', 'aus', '2026-06-23T15:00:00Z', 'group', 'Hard Rock Stadium', 'SVT'),
+  createMatch('m24', 'tun', 'fra', '2026-06-23T15:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
 
   // Group E
-  createMatch('m25', 'ger', 'jpn', '2022-11-23T13:00:00Z', 'group', 'Khalifa International', 'SVT', { home: 1, away: 2 }),
-  createMatch('m26', 'esp', 'crc', '2022-11-23T16:00:00Z', 'group', 'Al Thumama Stadium', 'TV4', { home: 7, away: 0 }),
-  createMatch('m27', 'jpn', 'crc', '2022-11-27T10:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'SVT', { home: 0, away: 1 }),
-  createMatch('m28', 'esp', 'ger', '2022-11-27T19:00:00Z', 'group', 'Al Bayt Stadium', 'TV4', { home: 1, away: 1 }),
-  createMatch('m29', 'jpn', 'esp', '2022-12-01T19:00:00Z', 'group', 'Khalifa International', 'SVT', { home: 2, away: 1 }),
-  createMatch('m30', 'crc', 'ger', '2022-12-01T19:00:00Z', 'group', 'Al Bayt Stadium', 'TV4', { home: 2, away: 4 }),
+  createMatch('m25', 'esp', 'crc', '2026-06-13T21:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m26', 'ger', 'jpn', '2026-06-14T00:00:00Z', 'group', 'BMO Field', 'TV4'),
+  createMatch('m27', 'esp', 'ger', '2026-06-18T21:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m28', 'jpn', 'crc', '2026-06-19T00:00:00Z', 'group', 'BMO Field', 'TV4'),
+  createMatch('m29', 'crc', 'ger', '2026-06-23T21:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m30', 'jpn', 'esp', '2026-06-23T21:00:00Z', 'group', 'BMO Field', 'TV4'),
 
   // Group F
-  createMatch('m31', 'mar', 'cro', '2022-11-23T10:00:00Z', 'group', 'Al Bayt Stadium', 'SVT', { home: 0, away: 0 }),
-  createMatch('m32', 'bel', 'can', '2022-11-23T19:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'TV4', { home: 1, away: 0 }),
-  createMatch('m33', 'bel', 'mar', '2022-11-27T13:00:00Z', 'group', 'Al Thumama Stadium', 'SVT', { home: 0, away: 2 }),
-  createMatch('m34', 'cro', 'can', '2022-11-27T16:00:00Z', 'group', 'Khalifa International', 'TV4', { home: 4, away: 1 }),
-  createMatch('m35', 'cro', 'bel', '2022-12-01T15:00:00Z', 'group', 'Ahmad Bin Ali Stadium', 'SVT', { home: 0, away: 0 }),
-  createMatch('m36', 'can', 'mar', '2022-12-01T15:00:00Z', 'group', 'Al Thumama Stadium', 'TV4', { home: 1, away: 2 }),
+  createMatch('m31', 'bra', 'can', '2026-06-14T15:00:00Z', 'group', 'Rose Bowl', 'SVT'),
+  createMatch('m32', 'cro', 'mar', '2026-06-14T18:00:00Z', 'group', 'Lumen Field', 'TV4'),
+  createMatch('m33', 'bra', 'cro', '2026-06-19T15:00:00Z', 'group', 'Rose Bowl', 'SVT'),
+  createMatch('m34', 'mar', 'can', '2026-06-19T18:00:00Z', 'group', 'Lumen Field', 'TV4'),
+  createMatch('m35', 'can', 'cro', '2026-06-24T15:00:00Z', 'group', 'Rose Bowl', 'SVT'),
+  createMatch('m36', 'mar', 'bra', '2026-06-24T15:00:00Z', 'group', 'Lumen Field', 'TV4'),
 
   // Group G
-  createMatch('m37', 'sui', 'cmr', '2022-11-24T10:00:00Z', 'group', 'Al Janoub Stadium', 'SVT', { home: 1, away: 0 }),
-  createMatch('m38', 'bra', 'srb', '2022-11-24T19:00:00Z', 'group', 'Lusail Stadium', 'TV4', { home: 2, away: 0 }),
-  createMatch('m39', 'cmr', 'srb', '2022-11-28T10:00:00Z', 'group', 'Al Janoub Stadium', 'SVT', { home: 3, away: 3 }),
-  createMatch('m40', 'bra', 'sui', '2022-11-28T16:00:00Z', 'group', 'Stadium 974', 'TV4', { home: 1, away: 0 }),
-  createMatch('m41', 'cmr', 'bra', '2022-12-02T19:00:00Z', 'group', 'Lusail Stadium', 'SVT', { home: 1, away: 0 }),
-  createMatch('m42', 'srb', 'sui', '2022-12-02T19:00:00Z', 'group', 'Stadium 974', 'TV4', { home: 2, away: 3 }),
+  createMatch('m37', 'por', 'gha', '2026-06-14T21:00:00Z', 'group', 'MetLife Stadium', 'SVT'),
+  createMatch('m38', 'uru', 'kor', '2026-06-15T00:00:00Z', 'group', 'AT&T Stadium', 'TV4'),
+  createMatch('m39', 'por', 'uru', '2026-06-19T21:00:00Z', 'group', 'MetLife Stadium', 'SVT'),
+  createMatch('m40', 'kor', 'gha', '2026-06-20T00:00:00Z', 'group', 'AT&T Stadium', 'TV4'),
+  createMatch('m41', 'gha', 'uru', '2026-06-24T21:00:00Z', 'group', 'MetLife Stadium', 'SVT'),
+  createMatch('m42', 'kor', 'por', '2026-06-24T21:00:00Z', 'group', 'AT&T Stadium', 'TV4'),
 
   // Group H
-  createMatch('m43', 'uru', 'kor', '2022-11-24T13:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 0, away: 0 }),
-  createMatch('m44', 'por', 'gha', '2022-11-24T16:00:00Z', 'group', 'Stadium 974', 'TV4', { home: 3, away: 2 }),
-  createMatch('m45', 'kor', 'gha', '2022-11-28T13:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 2, away: 3 }),
-  createMatch('m46', 'por', 'uru', '2022-11-28T19:00:00Z', 'group', 'Lusail Stadium', 'TV4', { home: 2, away: 0 }),
-  createMatch('m47', 'kor', 'por', '2022-12-02T15:00:00Z', 'group', 'Education City Stadium', 'SVT', { home: 2, away: 1 }),
-  createMatch('m48', 'gha', 'uru', '2022-12-02T15:00:00Z', 'group', 'Al Janoub Stadium', 'TV4', { home: 0, away: 2 }),
+  createMatch('m43', 'bel', 'cmr', '2026-06-15T15:00:00Z', 'group', 'Mercedes-Benz Stadium', 'SVT'),
+  createMatch('m44', 'sui', 'srb', '2026-06-15T18:00:00Z', 'group', 'NRG Stadium', 'TV4'),
+  createMatch('m45', 'bel', 'sui', '2026-06-20T15:00:00Z', 'group', 'Mercedes-Benz Stadium', 'SVT'),
+  createMatch('m46', 'srb', 'cmr', '2026-06-20T18:00:00Z', 'group', 'NRG Stadium', 'TV4'),
+  createMatch('m47', 'cmr', 'sui', '2026-06-25T15:00:00Z', 'group', 'Mercedes-Benz Stadium', 'SVT'),
+  createMatch('m48', 'srb', 'bel', '2026-06-25T15:00:00Z', 'group', 'NRG Stadium', 'TV4'),
 
-  // Round of 16
-  createMatch('r16-1', 'ned', 'usa', '2022-12-03T15:00:00Z', 'round_of_16', 'Khalifa International', 'SVT', { home: 3, away: 1 }),
-  createMatch('r16-2', 'arg', 'aus', '2022-12-03T19:00:00Z', 'round_of_16', 'Ahmad Bin Ali Stadium', 'TV4', { home: 2, away: 1 }),
-  createMatch('r16-3', 'fra', 'pol', '2022-12-04T15:00:00Z', 'round_of_16', 'Al Thumama Stadium', 'SVT', { home: 3, away: 1 }),
-  createMatch('r16-4', 'eng', 'sen', '2022-12-04T19:00:00Z', 'round_of_16', 'Al Bayt Stadium', 'TV4', { home: 3, away: 0 }),
-  createMatch('r16-5', 'jpn', 'cro', '2022-12-05T15:00:00Z', 'round_of_16', 'Al Janoub Stadium', 'SVT', { home: 1, away: 1 }),
-  createMatch('r16-6', 'bra', 'kor', '2022-12-05T19:00:00Z', 'round_of_16', 'Stadium 974', 'TV4', { home: 4, away: 1 }),
-  createMatch('r16-7', 'mar', 'esp', '2022-12-06T15:00:00Z', 'round_of_16', 'Education City Stadium', 'SVT', { home: 0, away: 0 }),
-  createMatch('r16-8', 'por', 'sui', '2022-12-06T19:00:00Z', 'round_of_16', 'Lusail Stadium', 'TV4', { home: 6, away: 1 }),
+  // Group I
+  createMatch('m49', 'ita', 'jam', '2026-06-15T21:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m50', 'col', 'egy', '2026-06-16T00:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
+  createMatch('m51', 'ita', 'col', '2026-06-20T21:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m52', 'egy', 'jam', '2026-06-21T00:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
+  createMatch('m53', 'jam', 'col', '2026-06-25T21:00:00Z', 'group', 'SoFi Stadium', 'SVT'),
+  createMatch('m54', 'egy', 'ita', '2026-06-25T21:00:00Z', 'group', 'Levi\'s Stadium', 'TV4'),
 
-  // Quarter finals
-  createMatch('qf-1', 'cro', 'bra', '2022-12-09T15:00:00Z', 'quarter', 'Education City Stadium', 'SVT', { home: 1, away: 1 }),
-  createMatch('qf-2', 'ned', 'arg', '2022-12-09T19:00:00Z', 'quarter', 'Lusail Stadium', 'TV4', { home: 2, away: 2 }),
-  createMatch('qf-3', 'mar', 'por', '2022-12-10T15:00:00Z', 'quarter', 'Al Thumama Stadium', 'SVT', { home: 1, away: 0 }),
-  createMatch('qf-4', 'eng', 'fra', '2022-12-10T19:00:00Z', 'quarter', 'Al Bayt Stadium', 'TV4', { home: 1, away: 2 }),
+  // Group J
+  createMatch('m55', 'aut', 'civ', '2026-06-11T15:00:00Z', 'group', 'Estadio BBVA', 'SVT'),
+  createMatch('m56', 'ukr', 'nga', '2026-06-11T18:00:00Z', 'group', 'Estadio Akron', 'TV4'),
+  createMatch('m57', 'aut', 'ukr', '2026-06-16T15:00:00Z', 'group', 'Estadio BBVA', 'SVT'),
+  createMatch('m58', 'nga', 'civ', '2026-06-16T18:00:00Z', 'group', 'Estadio Akron', 'TV4'),
+  createMatch('m59', 'civ', 'ukr', '2026-06-21T15:00:00Z', 'group', 'Estadio BBVA', 'SVT'),
+  createMatch('m60', 'nga', 'aut', '2026-06-21T15:00:00Z', 'group', 'Estadio Akron', 'TV4'),
 
-  // Semi finals
-  createMatch('sf-1', 'arg', 'cro', '2022-12-13T19:00:00Z', 'semi', 'Lusail Stadium', 'SVT', { home: 3, away: 0 }),
-  createMatch('sf-2', 'fra', 'mar', '2022-12-14T19:00:00Z', 'semi', 'Al Bayt Stadium', 'TV4', { home: 2, away: 0 }),
+  // Group K
+  createMatch('m61', 'tur', 'nzl', '2026-06-12T15:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m62', 'chi', 'alg', '2026-06-12T18:00:00Z', 'group', 'BMO Field', 'TV4'),
+  createMatch('m63', 'tur', 'chi', '2026-06-17T15:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m64', 'alg', 'nzl', '2026-06-17T18:00:00Z', 'group', 'BMO Field', 'TV4'),
+  createMatch('m65', 'nzl', 'chi', '2026-06-22T15:00:00Z', 'group', 'BC Place', 'SVT'),
+  createMatch('m66', 'alg', 'tur', '2026-06-22T15:00:00Z', 'group', 'BMO Field', 'TV4'),
 
-  // Final
-  createMatch('final', 'arg', 'fra', '2022-12-18T15:00:00Z', 'final', 'Lusail Stadium', 'SVT/TV4', { home: 3, away: 3 }),
+  // Group L
+  createMatch('m67', 'sco', 'zaf', '2026-06-13T15:00:00Z', 'group', 'Gillette Stadium', 'SVT'),
+  createMatch('m68', 'ven', 'qat', '2026-06-13T18:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
+  createMatch('m69', 'sco', 'ven', '2026-06-18T15:00:00Z', 'group', 'Gillette Stadium', 'SVT'),
+  createMatch('m70', 'qat', 'zaf', '2026-06-18T18:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
+  createMatch('m71', 'zaf', 'ven', '2026-06-23T15:00:00Z', 'group', 'Gillette Stadium', 'SVT'),
+  createMatch('m72', 'qat', 'sco', '2026-06-23T15:00:00Z', 'group', 'Lincoln Financial Field', 'TV4'),
 ]
 
 export function getMatchesByTeam(teamId: string): Match[] {
@@ -129,7 +140,7 @@ export function getMatchesByGroup(group: string): Match[] {
 
 // Calculate group standings based on match results
 export function calculateGroupStandings(group: string): GroupStanding[] {
-  const groupTeams = teams.filter(t => t.group === group)
+  const groupTeams = getTeamsByGroup(group)
   const groupMatches = getMatchesByGroup(group)
 
   const standings: GroupStanding[] = groupTeams.map(team => ({
@@ -187,7 +198,6 @@ export function calculateGroupStandings(group: string): GroupStanding[] {
 }
 
 export function getAllGroups(): Group[] {
-  const groupNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   return groupNames.map(name => ({
     name,
     standings: calculateGroupStandings(name),

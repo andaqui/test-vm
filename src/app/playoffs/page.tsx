@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 export default function PlayoffsPage() {
   const { formatMatchTime, selectedTeam, hideOtherTeams, isTeamHighlighted } = useApp()
 
+  const roundOf32 = getMatchesByStage('round_of_32')
   const roundOf16 = getMatchesByStage('round_of_16')
   const quarterFinals = getMatchesByStage('quarter')
   const semiFinals = getMatchesByStage('semi')
@@ -24,6 +25,7 @@ export default function PlayoffsPage() {
   }
 
   const stages = [
+    { name: '32-delsfinal', matches: filterMatches(roundOf32) },
     { name: 'Sextondelsfinal', matches: filterMatches(roundOf16) },
     { name: 'Kvartsfinal', matches: filterMatches(quarterFinals) },
     { name: 'Semifinal', matches: filterMatches(semiFinals) },
@@ -35,7 +37,7 @@ export default function PlayoffsPage() {
       <div>
         <h1 className="text-3xl font-bold">Slutspel</h1>
         <p className="text-muted-foreground mt-2">
-          Från sextondelsfinal till final
+          Från 32-delsfinal till final
         </p>
       </div>
 

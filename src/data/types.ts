@@ -11,7 +11,7 @@ export interface Match {
   homeTeam: Team
   awayTeam: Team
   kickoffTimeUTC: string
-  stage: 'group' | 'round_of_16' | 'quarter' | 'semi' | 'final'
+  stage: 'group' | 'round_of_32' | 'round_of_16' | 'quarter' | 'semi' | 'final'
   venue: string
   tvChannel: string
   result?: {
