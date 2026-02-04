@@ -26,49 +26,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-// Playoff bracket structure for 48-team World Cup
+// Playoff bracket structure for 48-team World Cup (Official FIFA bracket 2026)
 // Top 2 from each group (24) + 8 best third-placed teams = 32 teams
 // Round of 32 -> Round of 16 -> Quarter -> Semi -> Final
+// Third-place matchups depend on which 8 teams qualify - using best guess based on group seeding
 const playoffStructure = {
   round_of_32: [
-    { id: 'r32-1', home: '1A', away: '3C' },
-    { id: 'r32-2', home: '2B', away: '2C' },
-    { id: 'r32-3', home: '1B', away: '3A' },
-    { id: 'r32-4', home: '2A', away: '2D' },
-    { id: 'r32-5', home: '1C', away: '3B' },
-    { id: 'r32-6', home: '2E', away: '2F' },
-    { id: 'r32-7', home: '1D', away: '3E' },
-    { id: 'r32-8', home: '2G', away: '2H' },
-    { id: 'r32-9', home: '1E', away: '3D' },
-    { id: 'r32-10', home: '2I', away: '2J' },
-    { id: 'r32-11', home: '1F', away: '3G' },
-    { id: 'r32-12', home: '2K', away: '2L' },
-    { id: 'r32-13', home: '1G', away: '3F' },
-    { id: 'r32-14', home: '1H', away: '3I' },
-    { id: 'r32-15', home: '1I', away: '3H' },
-    { id: 'r32-16', home: '1J', away: '3J' },
+    // Left side of bracket (Path to SF1)
+    { id: 'r32-1', home: '2A', away: '2B' },       // Match 73
+    { id: 'r32-2', home: '1C', away: '2F' },       // Match 74
+    { id: 'r32-3', home: '1E', away: '3A' },       // Match 75 (3rd: ABCDF)
+    { id: 'r32-4', home: '1F', away: '2C' },       // Match 76
+    { id: 'r32-5', home: '2E', away: '2I' },       // Match 77
+    { id: 'r32-6', home: '1I', away: '3C' },       // Match 78 (3rd: CDFGH)
+    { id: 'r32-7', home: '1A', away: '3E' },       // Match 79 (3rd: CEFHI)
+    { id: 'r32-8', home: '1L', away: '3H' },       // Match 80 (3rd: EHIJK)
+    // Right side of bracket (Path to SF2)
+    { id: 'r32-9', home: '1G', away: '3J' },       // Match 81 (3rd: AEHIJ)
+    { id: 'r32-10', home: '1D', away: '3B' },      // Match 82 (3rd: BEFIJ)
+    { id: 'r32-11', home: '1H', away: '2J' },      // Match 83
+    { id: 'r32-12', home: '2K', away: '2L' },      // Match 84
+    { id: 'r32-13', home: '1B', away: '3G' },      // Match 85 (3rd: EFGIJ)
+    { id: 'r32-14', home: '2D', away: '2G' },      // Match 86
+    { id: 'r32-15', home: '1J', away: '2H' },      // Match 87
+    { id: 'r32-16', home: '1K', away: '3I' },      // Match 88 (3rd: DEIJL)
   ],
   round_of_16: [
-    { id: 'r16-1', home: 'r32-1', away: 'r32-2' },
-    { id: 'r16-2', home: 'r32-3', away: 'r32-4' },
-    { id: 'r16-3', home: 'r32-5', away: 'r32-6' },
-    { id: 'r16-4', home: 'r32-7', away: 'r32-8' },
-    { id: 'r16-5', home: 'r32-9', away: 'r32-10' },
-    { id: 'r16-6', home: 'r32-11', away: 'r32-12' },
-    { id: 'r16-7', home: 'r32-13', away: 'r32-14' },
-    { id: 'r16-8', home: 'r32-15', away: 'r32-16' },
+    // Left side
+    { id: 'r16-1', home: 'r32-1', away: 'r32-3' }, // Match 89: W73 vs W75
+    { id: 'r16-2', home: 'r32-2', away: 'r32-5' }, // Match 90: W74 vs W77
+    { id: 'r16-3', home: 'r32-4', away: 'r32-6' }, // Match 91: W76 vs W78
+    { id: 'r16-4', home: 'r32-7', away: 'r32-8' }, // Match 92: W79 vs W80
+    // Right side
+    { id: 'r16-5', home: 'r32-11', away: 'r32-12' }, // Match 93: W83 vs W84
+    { id: 'r16-6', home: 'r32-9', away: 'r32-10' },  // Match 94: W81 vs W82
+    { id: 'r16-7', home: 'r32-14', away: 'r32-16' }, // Match 95: W86 vs W88
+    { id: 'r16-8', home: 'r32-13', away: 'r32-15' }, // Match 96: W85 vs W87
   ],
   quarter: [
-    { id: 'qf-1', home: 'r16-1', away: 'r16-2' },
-    { id: 'qf-2', home: 'r16-3', away: 'r16-4' },
-    { id: 'qf-3', home: 'r16-5', away: 'r16-6' },
-    { id: 'qf-4', home: 'r16-7', away: 'r16-8' },
+    { id: 'qf-1', home: 'r16-1', away: 'r16-2' }, // Match 97: W89 vs W90
+    { id: 'qf-2', home: 'r16-3', away: 'r16-4' }, // Match 98: W91 vs W92
+    { id: 'qf-3', home: 'r16-5', away: 'r16-6' }, // Match 99: W93 vs W94
+    { id: 'qf-4', home: 'r16-7', away: 'r16-8' }, // Match 100: W95 vs W96
   ],
   semi: [
-    { id: 'sf-1', home: 'qf-1', away: 'qf-2' },
-    { id: 'sf-2', home: 'qf-3', away: 'qf-4' },
+    { id: 'sf-1', home: 'qf-1', away: 'qf-2' }, // Match 101: W97 vs W98
+    { id: 'sf-2', home: 'qf-3', away: 'qf-4' }, // Match 102: W99 vs W100
   ],
-  final: [{ id: 'final', home: 'sf-1', away: 'sf-2' }],
+  final: [{ id: 'final', home: 'sf-1', away: 'sf-2' }], // Match 103: W101 vs W102
 }
 
 export default function PredictionsPage() {
@@ -277,9 +282,9 @@ export default function PredictionsPage() {
             ))}
           </div>
 
-          {/* Desktop: Bracket view */}
+          {/* Desktop: Bracket view with connectors */}
           <div className="hidden lg:block overflow-x-auto">
-            <div className="min-w-[1400px] flex gap-4 p-4">
+            <div className="min-w-[1600px] flex p-4">
               {[
                 { name: '32-delsfinal', key: 'round_of_32' },
                 { name: 'Sextondelsfinal', key: 'round_of_16' },
@@ -287,27 +292,69 @@ export default function PredictionsPage() {
                 { name: 'Semifinal', key: 'semi' },
                 { name: 'Final', key: 'final' },
               ].map((stage, stageIndex) => (
-                <div key={stage.key} className="flex-1 min-w-[200px]">
-                  <h3 className="text-sm font-semibold text-center mb-4 pb-2 border-b">
-                    {stage.name}
-                  </h3>
-                  <div
-                    className={cn(
-                      'space-y-1',
-                      stageIndex === 1 && 'space-y-4 pt-4',
-                      stageIndex === 2 && 'space-y-12 pt-10',
-                      stageIndex === 3 && 'space-y-32 pt-24',
-                      stageIndex === 4 && 'pt-48'
-                    )}
-                  >
-                    {playoffBracket[stage.key]?.map(match => (
-                      <PlayoffMatchBracket
-                        key={match.id}
-                        match={match}
-                        onSelectWinner={updatePlayoffPrediction}
-                      />
-                    ))}
+                <div key={stage.key} className="flex items-stretch">
+                  <div className="min-w-[180px] flex flex-col">
+                    <h3 className="text-sm font-semibold text-center mb-4 pb-2 border-b">
+                      {stage.name}
+                    </h3>
+                    <div
+                      className={cn(
+                        'flex-1 flex flex-col justify-around',
+                        stageIndex === 0 && 'gap-1',
+                        stageIndex === 1 && 'gap-6',
+                        stageIndex === 2 && 'gap-16',
+                        stageIndex === 3 && 'gap-32',
+                      )}
+                    >
+                      {playoffBracket[stage.key]?.map((match, matchIndex) => (
+                        <PlayoffMatchBracket
+                          key={match.id}
+                          match={match}
+                          onSelectWinner={updatePlayoffPrediction}
+                          showConnector={stageIndex < 4}
+                        />
+                      ))}
+                    </div>
                   </div>
+                  {/* Connector lines between stages */}
+                  {stageIndex < 4 && (
+                    <div className="w-8 flex flex-col justify-around relative">
+                      {Array.from({ length: Math.ceil((playoffBracket[stage.key]?.length || 0) / 2) }).map((_, i) => (
+                        <div key={i} className="relative flex-1 flex items-center">
+                          <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                            <line
+                              x1="0" y1="25%"
+                              x2="50%" y2="25%"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-border"
+                            />
+                            <line
+                              x1="0" y1="75%"
+                              x2="50%" y2="75%"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-border"
+                            />
+                            <line
+                              x1="50%" y1="25%"
+                              x2="50%" y2="75%"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-border"
+                            />
+                            <line
+                              x1="50%" y1="50%"
+                              x2="100%" y2="50%"
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-border"
+                            />
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -457,55 +504,45 @@ function PlayoffMatchCard({
   const homeTeam = match.homeTeamId ? getTeamById(match.homeTeamId) : null
   const awayTeam = match.awayTeamId ? getTeamById(match.awayTeamId) : null
 
-  if (!homeTeam || !awayTeam) {
+  // Show team slot even if only one team is available
+  const renderTeamSlot = (team: typeof homeTeam, isHome: boolean) => {
+    if (!team) {
+      return (
+        <div className="w-full flex items-center justify-between p-2 rounded bg-muted/30 opacity-50">
+          <span className="flex items-center gap-2">
+            <span>🏳️</span>
+            <span className="font-medium text-muted-foreground">TBD</span>
+          </span>
+        </div>
+      )
+    }
+
     return (
-      <div className="p-3 border rounded-lg opacity-50">
-        <p className="text-center text-muted-foreground">
-          Väntar på tidigare matcher...
-        </p>
-      </div>
+      <button
+        onClick={() => onSelectWinner(match.id, team.id)}
+        className={cn(
+          'w-full flex items-center justify-between p-2 rounded transition-colors',
+          match.winnerId === team.id
+            ? 'bg-green-100 dark:bg-green-900/50 ring-2 ring-green-500'
+            : 'hover:bg-accent'
+        )}
+      >
+        <span className="flex items-center gap-2">
+          <span>{team.flag}</span>
+          <span className="font-medium">{team.name}</span>
+        </span>
+        {match.winnerId === team.id && (
+          <span className="text-green-600 dark:text-green-400 text-sm">Vinnare</span>
+        )}
+      </button>
     )
   }
 
   return (
     <div className="p-3 border rounded-lg space-y-2">
-      <button
-        onClick={() => onSelectWinner(match.id, homeTeam.id)}
-        className={cn(
-          'w-full flex items-center justify-between p-2 rounded transition-colors',
-          match.winnerId === homeTeam.id
-            ? 'bg-green-100 dark:bg-green-900/50 ring-2 ring-green-500'
-            : 'hover:bg-accent'
-        )}
-      >
-        <span className="flex items-center gap-2">
-          <span>{homeTeam.flag}</span>
-          <span className="font-medium">{homeTeam.name}</span>
-        </span>
-        {match.winnerId === homeTeam.id && (
-          <span className="text-green-600 dark:text-green-400 text-sm">Vinnare</span>
-        )}
-      </button>
-
+      {renderTeamSlot(homeTeam, true)}
       <div className="text-center text-xs text-muted-foreground">vs</div>
-
-      <button
-        onClick={() => onSelectWinner(match.id, awayTeam.id)}
-        className={cn(
-          'w-full flex items-center justify-between p-2 rounded transition-colors',
-          match.winnerId === awayTeam.id
-            ? 'bg-green-100 dark:bg-green-900/50 ring-2 ring-green-500'
-            : 'hover:bg-accent'
-        )}
-      >
-        <span className="flex items-center gap-2">
-          <span>{awayTeam.flag}</span>
-          <span className="font-medium">{awayTeam.name}</span>
-        </span>
-        {match.winnerId === awayTeam.id && (
-          <span className="text-green-600 dark:text-green-400 text-sm">Vinnare</span>
-        )}
-      </button>
+      {renderTeamSlot(awayTeam, false)}
     </div>
   )
 }
@@ -513,6 +550,7 @@ function PlayoffMatchCard({
 function PlayoffMatchBracket({
   match,
   onSelectWinner,
+  showConnector = false,
 }: {
   match: {
     id: string
@@ -521,45 +559,52 @@ function PlayoffMatchBracket({
     winnerId: string | null
   }
   onSelectWinner: (matchId: string, winnerId: string) => void
+  showConnector?: boolean
 }) {
   const homeTeam = match.homeTeamId ? getTeamById(match.homeTeamId) : null
   const awayTeam = match.awayTeamId ? getTeamById(match.awayTeamId) : null
 
-  if (!homeTeam || !awayTeam) {
+  const renderTeamSlot = (team: typeof homeTeam, isTop: boolean) => {
+    if (!team) {
+      return (
+        <div
+          className={cn(
+            'w-full flex items-center gap-1 p-1.5 bg-muted/30 opacity-50',
+            isTop ? 'rounded-t-lg' : 'rounded-b-lg border-t'
+          )}
+        >
+          <span>🏳️</span>
+          <span className="truncate text-xs text-muted-foreground">TBD</span>
+        </div>
+      )
+    }
+
     return (
-      <div className="border rounded-lg p-1 bg-muted/50 opacity-50 text-xs">
-        <div className="p-1 text-center text-muted-foreground">TBD</div>
-        <div className="p-1 text-center text-muted-foreground border-t">TBD</div>
-      </div>
+      <button
+        onClick={() => onSelectWinner(match.id, team.id)}
+        className={cn(
+          'w-full flex items-center gap-1 p-1.5 transition-colors',
+          isTop ? 'rounded-t-lg' : 'rounded-b-lg border-t',
+          match.winnerId === team.id
+            ? 'bg-green-100 dark:bg-green-900/50'
+            : 'hover:bg-accent'
+        )}
+      >
+        <span>{team.flag}</span>
+        <span className="truncate text-xs font-medium">{team.name}</span>
+      </button>
     )
   }
 
   return (
-    <div className="border rounded-lg bg-card text-sm">
-      <button
-        onClick={() => onSelectWinner(match.id, homeTeam.id)}
-        className={cn(
-          'w-full flex items-center gap-1 p-1.5 transition-colors rounded-t-lg',
-          match.winnerId === homeTeam.id
-            ? 'bg-green-100 dark:bg-green-900/50'
-            : 'hover:bg-accent'
-        )}
-      >
-        <span>{homeTeam.flag}</span>
-        <span className="truncate text-xs font-medium">{homeTeam.name}</span>
-      </button>
-      <button
-        onClick={() => onSelectWinner(match.id, awayTeam.id)}
-        className={cn(
-          'w-full flex items-center gap-1 p-1.5 transition-colors border-t rounded-b-lg',
-          match.winnerId === awayTeam.id
-            ? 'bg-green-100 dark:bg-green-900/50'
-            : 'hover:bg-accent'
-        )}
-      >
-        <span>{awayTeam.flag}</span>
-        <span className="truncate text-xs font-medium">{awayTeam.name}</span>
-      </button>
+    <div className="relative flex items-center">
+      <div className="border rounded-lg bg-card text-sm flex-1 min-w-0">
+        {renderTeamSlot(homeTeam, true)}
+        {renderTeamSlot(awayTeam, false)}
+      </div>
+      {showConnector && (
+        <div className="w-4 h-px bg-border absolute -right-4 top-1/2" />
+      )}
     </div>
   )
 }
